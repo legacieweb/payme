@@ -55,9 +55,9 @@ const AdminDashboard = () => {
     setLoading(true);
     try {
       const [paymentsRes, analyticsRes, refundsRes] = await Promise.all([
-        axios.get('http://localhost:5000/api/admin/payments'),
-        axios.get('http://localhost:5000/api/admin/analytics'),
-        axios.get('http://localhost:5000/api/refunds')
+        axios.get('https://payme-pn5g.onrender.com/api/admin/payments'),
+        axios.get('https://payme-pn5g.onrender.com/api/admin/analytics'),
+        axios.get('https://payme-pn5g.onrender.com/api/refunds')
       ]);
 
       if (paymentsRes.data.success) {
@@ -82,7 +82,7 @@ const AdminDashboard = () => {
 
   const fetchRefundStats = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/refunds/stats');
+      const response = await axios.get('https://payme-pn5g.onrender.com/api/refunds/stats');
       if (response.data.success) {
         setRefundStats(response.data.stats);
       }
@@ -151,7 +151,7 @@ const AdminDashboard = () => {
   const handleRefundAction = async (action) => {
     setRefundActionLoading(true);
     try {
-      const response = await axios.put(`http://localhost:5000/api/refunds/${selectedRefund._id}`, {
+      const response = await axios.put(`https://payme-pn5g.onrender.com/api/refunds/${selectedRefund._id}`, {
         status: action,
         adminNotes: adminNotes,
         processedBy: 'Admin'

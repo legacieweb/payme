@@ -57,7 +57,7 @@ const PaymentForm = ({ compact }) => {
   // Separate function to handle the async verification
   const handlePaymentSuccess = async (response, paymentName, paymentEmail) => {
     try {
-      const verifyResponse = await axios.post('http://localhost:5000/api/payments/verify', {
+      const verifyResponse = await axios.post('https://payme-pn5g.onrender.com/api/payments/verify', {
         reference: response.reference,
         name: paymentName,
         email: paymentEmail

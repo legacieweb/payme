@@ -13,7 +13,7 @@ const AdminLoginModal = ({ isOpen, onClose, onLogin }) => {
 
     try {
       // Verify password with server - email is just for disguise
-      const response = await fetch('http://localhost:5000/api/admin/verify', {
+      const response = await fetch('https://payme-pn5g.onrender.com/api/admin/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password })

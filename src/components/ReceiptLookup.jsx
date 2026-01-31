@@ -25,14 +25,14 @@ const ReceiptLookup = () => {
     setRefundStatuses({});
 
     try {
-      const response = await axios.get(`http://localhost:5000/api/payments/${email}`);
+      const response = await axios.get(`https://payme-pn5g.onrender.com/api/payments/${email}`);
       
       if (response.data.success && response.data.payments.length > 0) {
         setPayments(response.data.payments);
         // Check refund status for each payment
         response.data.payments.forEach(async (payment) => {
           try {
-            const refundRes = await axios.get(`http://localhost:5000/api/refunds/payment/${payment._id}`);
+            const refundRes = await axios.get(`https://payme-pn5g.onrender.com/api/refunds/payment/${payment._id}`);
             if (refundRes.data.refund) {
               setRefundStatuses(prev => ({
                 ...prev,
@@ -79,7 +79,7 @@ const ReceiptLookup = () => {
     setRefundMessage('');
 
     try {
-      const response = await axios.post('http://localhost:5000/api/refunds', {
+      const response = await axios.post('https://payme-pn5g.onrender.com/api/refunds', {
         paymentId: selectedPayment._id,
         paymentReference: selectedPayment.reference,
         customerName: selectedPayment.name,

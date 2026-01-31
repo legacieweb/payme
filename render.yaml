@@ -1,0 +1,52 @@
+services:
+  # Frontend Service (Static Site)
+  - type: web
+    name: paylang-frontend
+    env: static
+    staticPublishPath: dist
+    buildCommand: npm install && npm run build
+    pullRequestPreviewsEnabled: true
+    envVars:
+      - key: VITE_API_URL
+        value: https://paylang-backend.onrender.com/api
+      - key: NODE_VERSION
+        value: 18
+
+  # Backend Service (API Server)
+  - type: web
+    name: paylang-backend
+    runtime: node
+    rootDir: server
+    buildCommand: npm install
+    startCommand: node index.js
+    healthCheckPath: /api/health
+    pullRequestPreviewsEnabled: true
+    envVars:
+      # Database
+      - key: MONGODB_URI
+        sync: false # You'll set this in Render dashboard
+      
+      # JWT Secret
+      - key: JWT_SECRET
+        generateValue: true
+      
+      # Email Configuration
+      - key: EMAIL_SERVICE
+        value: gmail
+      
+      - key: EMAIL_USER
+        sync: false # You'll set this in Render dashboard
+      
+      - key: EMAIL_PASS
+        sync: false # You'll set this in Render dashboard
+      
+      # CORS Origins
+      - key: CORS_ORIGINS
+        value: https://paylang.onrender.com,https://paylang-frontend.onrender.com
+      
+      # Node Environment
+      - key: NODE_ENV
+        value: production
+      
+      - key: PORT
+        value: 10000
