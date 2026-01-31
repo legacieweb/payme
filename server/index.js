@@ -100,6 +100,7 @@ app.post('/api/payments/verify', async (req, res) => {
         });
         await payment.save();
 
+        /* Email sending disabled as per user request
         // Send confirmation email to user
         const userMailOptions = {
           from: process.env.EMAIL_USER,
@@ -194,6 +195,7 @@ app.post('/api/payments/verify', async (req, res) => {
             console.log('Admin email sent:', info.response);
           }
         });
+        */
       }
 
       res.json({ success: true, data: paystackData });

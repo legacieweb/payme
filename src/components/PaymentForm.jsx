@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const PaymentForm = ({ compact }) => {
+  const navigate = useNavigate();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [amount, setAmount] = useState('');
@@ -64,11 +66,15 @@ const PaymentForm = ({ compact }) => {
       });
 
       if (verifyResponse.data.success) {
-        setMessage('Payment successful! A receipt has been sent to your email.');
-        // Reset form
-        setName('');
-        setEmail('');
-        setAmount('');
+        // Redirect to thank you page with payment data
+        navigate('/thankyou', { 
+          state: { 
+            paymentData: {
+              ...verifyResponse.data.data,
+              customer_name: paymentName
+            } 
+          } 
+        });
       } else {
         setMessage('Payment verification failed. Please contact support.');
       }
