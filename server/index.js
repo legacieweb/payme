@@ -49,15 +49,19 @@ const RefundRequest = mongoose.model('RefundRequest', refundRequestSchema);
 // Nodemailer Setup
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
-  port: 465,
-  secure: true,
+  port: 587,
+  secure: false, // Use STARTTLS
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
   },
   tls: {
-    rejectUnauthorized: false
-  }
+    rejectUnauthorized: false,
+    minVersion: 'TLSv1.2'
+  },
+  connectionTimeout: 10000, // 10 seconds
+  greetingTimeout: 10000,
+  socketTimeout: 10000
 });
 
 // Health check endpoint
@@ -132,7 +136,7 @@ app.post('/api/payments/verify', async (req, res) => {
         // Send notification email to admin
         const adminMailOptions = {
           from: process.env.EMAIL_USER,
-          to: process.env.EMAIL_USER, // Admin email
+          to: 'iyonicorp@gmail.com', // Admin email
           subject: 'New Payment Received - Paylang',
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -357,7 +361,7 @@ app.post('/api/refunds', async (req, res) => {
     // Send email notification to admin
     const adminMailOptions = {
       from: process.env.EMAIL_USER,
-      to: process.env.EMAIL_USER,
+      to: 'iyonicorp@gmail.com',
       subject: 'New Refund Request - Paylang',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">

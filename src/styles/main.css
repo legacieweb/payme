@@ -1419,7 +1419,7 @@ footer {
   }
   
   .nav-links li:not(:last-child) {
-    display: none;
+    display: flex;
   }
 
   .hero {
