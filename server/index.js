@@ -48,11 +48,21 @@ const RefundRequest = mongoose.model('RefundRequest', refundRequestSchema);
 
 // Nodemailer Setup
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
+  },
+  tls: {
+    rejectUnauthorized: false
   }
+});
+
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ status: 'healthy', timestamp: new Date().toISOString() });
 });
 
 // Verify payment and save to database
@@ -156,13 +166,29 @@ app.post('/api/payments/verify', async (req, res) => {
 
         // Send emails
         transporter.sendMail(userMailOptions, (error, info) => {
-          if (error) console.log('User email error:', error);
-          else console.log('User email sent:', info.response);
+          if (error) {
+            console.error('User email error details:', {
+              error: error.message,
+              code: error.code,
+              command: error.command,
+              stack: error.stack
+            });
+          } else {
+            console.log('User email sent:', info.response);
+          }
         });
 
         transporter.sendMail(adminMailOptions, (error, info) => {
-          if (error) console.log('Admin email error:', error);
-          else console.log('Admin email sent:', info.response);
+          if (error) {
+            console.error('Admin email error details:', {
+              error: error.message,
+              code: error.code,
+              command: error.command,
+              stack: error.stack
+            });
+          } else {
+            console.log('Admin email sent:', info.response);
+          }
         });
       }
 
@@ -367,8 +393,16 @@ app.post('/api/refunds', async (req, res) => {
     };
 
     transporter.sendMail(adminMailOptions, (error, info) => {
-      if (error) console.log('Admin refund notification error:', error);
-      else console.log('Admin refund notification sent:', info.response);
+      if (error) {
+        console.error('Admin refund notification error details:', {
+          error: error.message,
+          code: error.code,
+          command: error.command,
+          stack: error.stack
+        });
+      } else {
+        console.log('Admin refund notification sent:', info.response);
+      }
     });
 
     res.json({ success: true, message: 'Refund request submitted successfully', refundRequest });
@@ -463,8 +497,16 @@ app.put('/api/refunds/:id', async (req, res) => {
     };
 
     transporter.sendMail(customerMailOptions, (error, info) => {
-      if (error) console.log('Customer refund update email error:', error);
-      else console.log('Customer refund update email sent:', info.response);
+      if (error) {
+        console.error('Customer refund update email error details:', {
+          error: error.message,
+          code: error.code,
+          command: error.command,
+          stack: error.stack
+        });
+      } else {
+        console.log('Customer refund update email sent:', info.response);
+      }
     });
 
     res.json({ success: true, message: `Refund request ${status}`, refundRequest });
