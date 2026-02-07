@@ -11,7 +11,7 @@ const PaymentForm = ({ compact }) => {
   const [message, setMessage] = useState('');
 
   // Paystack public key
-  const PAYSTACK_PUBLIC_KEY = 'pk_test_232531a5c927ef2cc67ed1b85af3f26e3b8ed2f2';
+  const PAYSTACK_PUBLIC_KEY = 'pk_live_7ab8e015626516d7d00210b2e7fe169805c226b8';
 
   const handlePayment = (e) => {
     e.preventDefault();
