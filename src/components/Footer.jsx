@@ -40,9 +40,9 @@ const Footer = () => {
           <p className="copyright">&copy; {currentYear} Paylang Inc. All rights reserved.</p>
           <div className="powered-by">
             <span>Powered by</span>
-            <a href="https://iyonicoro.com" target="_blank" rel="noopener noreferrer" className="iyonicoro-link">
-              <span className="iyonicoro-text">iyonicoro</span>
-              <div className="iyonicoro-pulse"></div>
+            <a href="https://iyonicorp.com" target="_blank" rel="noopener noreferrer" className="iyonicorp-link">
+              <span className="iyonicorp-text">iyonicorp</span>
+              <div className="iyonicorp-pulse"></div>
             </a>
           </div>
         </div>
