@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const AdminLoginModal = ({ isOpen, onClose, onLogin }) => {
+const AdminLoginModal = ({ isOpen, onClose, onLogin, isAdmin = true }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -11,25 +11,48 @@ const AdminLoginModal = ({ isOpen, onClose, onLogin }) => {
     setError('');
     setLoading(true);
 
+    // Base API URL - handle local vs production
+    const baseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+      ? 'https://payme-pn5g.onrender.com'
+      : 'https://payme-pn5g.onrender.com';
+
+    const endpoint = `${baseUrl}/api/auth/login`;
+
     try {
-      // Verify password with server - email is just for disguise
-      const response = await fetch('https://payme-pn5g.onrender.com/api/admin/verify', {
+      // Verify credentials with server
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password })
+        body: JSON.stringify({ 
+          email: email.trim(), 
+          password: password.trim() 
+        })
       });
 
       const data = await response.json();
 
       if (data.success) {
-        // Store login status in localStorage
-        localStorage.setItem('adminLoggedIn', 'true');
+        // Store login status based on role
+        if (data.role === 'master') {
+          sessionStorage.setItem('masterAdminLoggedIn', 'true');
+          localStorage.setItem('adminLoggedIn', 'true'); // Master can also see regular admin
+        } else if (data.role === 'admin') {
+          localStorage.setItem('adminLoggedIn', 'true');
+        }
+
+        // Verify if the current portal allows this role
+        if (!isAdmin && data.role !== 'master') {
+          setError('Access denied: Master Admin credentials required');
+          setLoading(false);
+          return;
+        }
+
         onLogin();
         setEmail('');
         setPassword('');
         onClose();
       } else {
-        setError('Invalid email or password');
+        setError(data.message || 'Invalid email or password');
       }
     } catch (err) {
       setError('Error verifying credentials');
@@ -63,13 +86,13 @@ const AdminLoginModal = ({ isOpen, onClose, onLogin }) => {
               <circle cx="12" cy="7" r="4"/>
             </svg>
           </div>
-          <h2>Welcome Back</h2>
+          <h2>{isAdmin ? 'Admin Portal' : 'Master Admin Portal'}</h2>
           <p>Sign in to your account to continue</p>
         </div>
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="login-email">Email Address</label>
+            <label htmlFor="login-email">{isAdmin ? 'Admin Email' : 'Master Email'}</label>
             <input
               id="login-email"
               type="text"
@@ -81,11 +104,11 @@ const AdminLoginModal = ({ isOpen, onClose, onLogin }) => {
           </div>
           
           <div className="form-group">
-            <label htmlFor="login-password">Password</label>
+            <label htmlFor="login-password">{isAdmin ? 'Admin Password' : 'Master Password'}</label>
             <input
               id="login-password"
               type="password"
-              placeholder="Enter your password"
+              placeholder="Enter password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required

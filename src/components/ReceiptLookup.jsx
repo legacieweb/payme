@@ -16,6 +16,10 @@ const ReceiptLookup = () => {
   const [refundMessage, setRefundMessage] = useState('');
   const [refundStatuses, setRefundStatuses] = useState({});
 
+  const baseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'https://payme-pn5g.onrender.com'
+    : 'https://payme-pn5g.onrender.com';
+
   const handleSearch = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -25,14 +29,14 @@ const ReceiptLookup = () => {
     setRefundStatuses({});
 
     try {
-      const response = await axios.get(`https://payme-pn5g.onrender.com/api/payments/${email}`);
+      const response = await axios.get(`${baseUrl}/api/payments/${email}`);
       
       if (response.data.success && response.data.payments.length > 0) {
         setPayments(response.data.payments);
         // Check refund status for each payment
         response.data.payments.forEach(async (payment) => {
           try {
-            const refundRes = await axios.get(`https://payme-pn5g.onrender.com/api/refunds/payment/${payment._id}`);
+            const refundRes = await axios.get(`${baseUrl}/api/refunds/payment/${payment._id}`);
             if (refundRes.data.refund) {
               setRefundStatuses(prev => ({
                 ...prev,
@@ -79,7 +83,7 @@ const ReceiptLookup = () => {
     setRefundMessage('');
 
     try {
-      const response = await axios.post('https://payme-pn5g.onrender.com/api/refunds', {
+      const response = await axios.post(`${baseUrl}/api/refunds`, {
         paymentId: selectedPayment._id,
         paymentReference: selectedPayment.reference,
         customerName: selectedPayment.name,
@@ -90,7 +94,7 @@ const ReceiptLookup = () => {
       });
 
       if (response.data.success) {
-        setRefundMessage('Refund request submitted successfully! You will receive an email once it is reviewed.');
+        setRefundMessage('Refund request submitted successfully!');
         setRefundStatuses(prev => ({
           ...prev,
           [selectedPayment._id]: response.data.refundRequest
@@ -101,374 +105,164 @@ const ReceiptLookup = () => {
       }
     } catch (error) {
       console.error('Refund request error:', error);
-      setRefundMessage(error.response?.data?.message || 'Error submitting refund request. Please try again.');
+      setRefundMessage(error.response?.data?.message || 'Error submitting refund request.');
     } finally {
       setRefundLoading(false);
     }
   };
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleString('en-US', {
+    return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+      month: 'short',
+      day: 'numeric'
     });
   };
 
-  const getRefundStatusBadge = (paymentId) => {
-    const refund = refundStatuses[paymentId];
-    if (!refund) return null;
-
-    const statusColors = {
-      pending: { bg: 'rgba(245, 158, 11, 0.2)', color: '#f59e0b' },
-      approved: { bg: 'rgba(16, 185, 129, 0.2)', color: '#10b981' },
-      rejected: { bg: 'rgba(239, 68, 68, 0.2)', color: '#ef4444' }
-    };
-
-    const { bg, color } = statusColors[refund.status] || statusColors.pending;
-
-    return (
-      <span 
-        className="status-badge"
-        style={{ 
-          background: bg, 
-          color: color,
-          marginLeft: '8px',
-          fontSize: '11px',
-          padding: '3px 8px'
-        }}
-      >
-        Refund: {refund.status}
-      </span>
-    );
-  };
-
   return (
-    <section className="receipt-section" id="receipts">
+    <section className="receipt-lookup-section" id="receipts">
       <div className="container">
-        <div className="receipt-container">
-          <div className="receipt-header">
-            <h2>Find Your Receipts</h2>
-            <p>Enter your email address to view your payment history</p>
+        <div className="lookup-wrapper">
+          <div className="lookup-header">
+            <div className="header-icon-modern">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+            </div>
+            <h2>Transaction History</h2>
+            <p>Enter the email address you used for payment to view your records.</p>
           </div>
 
-          <form className="receipt-search-form" onSubmit={handleSearch}>
-            <div className="search-input-group">
-              <input
-                type="email"
-                placeholder="Enter your email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-              <button type="submit" className="search-btn" disabled={loading}>
-                {loading ? (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83">
-                      <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/>
-                    </path>
-                  </svg>
-                ) : (
-                  <>
-                    Search
-                    <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <circle cx="11" cy="11" r="8"/>
-                      <path d="m21 21-4.35-4.35"/>
-                    </svg>
-                  </>
-                )}
-              </button>
-            </div>
-          </form>
+          <div className="search-card-modern">
+            <form onSubmit={handleSearch} className="lookup-form-modern">
+              <div className="input-group-modern">
+                <div className="input-with-icon-glass">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/></svg>
+                  <input
+                    type="email"
+                    placeholder="Enter email to find records"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="modern-placeholder"
+                    required
+                  />
+                </div>
+                <button type="submit" className="primary-btn-modern glass-btn" disabled={loading}>
+                  {loading ? <span className="btn-spinner"></span> : 'Find Transactions'}
+                </button>
+              </div>
+            </form>
+          </div>
 
-          {message && (
-            <div className="message info">
-              {message}
-            </div>
-          )}
+          {message && <div className="message-box info">{message}</div>}
 
           {payments.length > 0 && (
-            <div className="payments-list">
-              <h3>Your Payments</h3>
-              {payments.map((payment) => (
-                <div key={payment._id} className="payment-receipt-card">
-                  <div className="receipt-header-row">
-                    <div className="receipt-status">
-                      <span className={`status-badge ${payment.status}`}>
-                        {payment.status === 'success' ? 'Successful' : payment.status}
-                      </span>
-                      {getRefundStatusBadge(payment._id)}
-                    </div>
-                    <div className="receipt-amount">
-                      {payment.currency} {payment.amount.toFixed(2)}
-                    </div>
-                  </div>
-                  
-                  <div className="receipt-details">
-                    <div className="receipt-row">
-                      <span className="receipt-label">Reference</span>
-                      <span className="receipt-value">{payment.reference}</span>
-                    </div>
-                    <div className="receipt-row">
-                      <span className="receipt-label">Name</span>
-                      <span className="receipt-value">{payment.name}</span>
-                    </div>
-                    <div className="receipt-row">
-                      <span className="receipt-label">Email</span>
-                      <span className="receipt-value">{payment.email}</span>
-                    </div>
-                    <div className="receipt-row">
-                      <span className="receipt-label">Date</span>
-                      <span className="receipt-value">{formatDate(payment.paidAt || payment.createdAt)}</span>
-                    </div>
-                  </div>
-
-                  {/* Refund Button */}
-                  {payment.status === 'success' && !refundStatuses[payment._id] && (
-                    <div className="receipt-actions" style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid var(--border)' }}>
-                      <button 
-                        className="refund-btn"
-                        onClick={() => openRefundModal(payment)}
-                        style={{
-                          background: 'transparent',
-                          border: '1px solid #f59e0b',
-                          color: '#f59e0b',
-                          padding: '10px 20px',
-                          borderRadius: '8px',
-                          fontSize: '14px',
-                          fontWeight: '500',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px',
-                          transition: 'all 0.2s ease'
-                        }}
-                        onMouseEnter={(e) => {
-                          e.target.style.background = 'rgba(245, 158, 11, 0.1)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.target.style.background = 'transparent';
-                        }}
-                      >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
-                        </svg>
-                        Request Refund
-                      </button>
-                    </div>
-                  )}
-
-                  {/* Refund Status Display */}
-                  {refundStatuses[payment._id] && (
-                    <div className="refund-status-display" style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--border)' }}>
-                      <div className="receipt-row">
-                        <span className="receipt-label">Refund Status</span>
-                        <span className="receipt-value" style={{ 
-                          color: refundStatuses[payment._id].status === 'approved' ? '#10b981' : 
-                                 refundStatuses[payment._id].status === 'rejected' ? '#ef4444' : '#f59e0b',
-                          fontWeight: '600',
-                          textTransform: 'capitalize'
-                        }}>
-                          {refundStatuses[payment._id].status}
-                        </span>
+            <div className="results-container">
+              <div className="results-header">
+                <h3>Found {payments.length} Payments</h3>
+              </div>
+              
+              <div className="payments-grid">
+                {payments.map((payment) => (
+                  <div key={payment._id} className="receipt-card-modern">
+                    <div className="card-top">
+                      <div className="status-container">
+                        <span className={`badge ${payment.status}`}>{payment.status}</span>
+                        {refundStatuses[payment._id] && (
+                          <span className={`badge refund ${refundStatuses[payment._id].status}`}>
+                            Refund {refundStatuses[payment._id].status}
+                          </span>
+                        )}
                       </div>
-                      {refundStatuses[payment._id].adminNotes && (
-                        <div className="receipt-row" style={{ marginTop: '8px' }}>
-                          <span className="receipt-label">Admin Notes</span>
-                          <span className="receipt-value">{refundStatuses[payment._id].adminNotes}</span>
-                        </div>
+                      <div className="amount-display">
+                        <span className="currency">{payment.currency}</span>
+                        <span className="amount">{payment.amount.toFixed(2)}</span>
+                      </div>
+                    </div>
+
+                    <div className="card-details">
+                      <div className="detail-row">
+                        <span className="label">Reference</span>
+                        <span className="value font-mono">{payment.reference}</span>
+                      </div>
+                      <div className="detail-row">
+                        <span className="label">Date</span>
+                        <span className="value">{formatDate(payment.paidAt || payment.createdAt)}</span>
+                      </div>
+                    </div>
+
+                    <div className="card-actions">
+                      {payment.status === 'success' && !refundStatuses[payment._id] ? (
+                        <button className="action-btn refund" onClick={() => openRefundModal(payment)}>
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                          Request Refund
+                        </button>
+                      ) : (
+                        <button className="action-btn download">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                          Download Receipt
+                        </button>
                       )}
                     </div>
-                  )}
-                </div>
-              ))}
+
+                    {refundStatuses[payment._id] && refundStatuses[payment._id].adminNotes && (
+                      <div className="admin-note-box">
+                        <strong>Note:</strong> {refundStatuses[payment._id].adminNotes}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
-          {searched && payments.length === 0 && !message && (
-            <div className="no-results">
-              <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="11" cy="11" r="8"/>
-                <path d="m21 21-4.35-4.35"/>
-              </svg>
-              <p>No payments found</p>
+          {searched && payments.length === 0 && !loading && !message && (
+            <div className="empty-state">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <p>No records found for this email.</p>
             </div>
           )}
         </div>
       </div>
 
-      {/* Refund Request Modal */}
       {showRefundModal && selectedPayment && (
-        <div 
-          className="refund-modal-overlay"
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0, 0, 0, 0.8)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 10000,
-            padding: '20px'
-          }}
-          onClick={(e) => {
-            if (e.target === e.currentTarget) closeRefundModal();
-          }}
-        >
-          <div 
-            className="refund-modal"
-            style={{
-              background: 'var(--bg-elevated)',
-              border: '1px solid var(--border)',
-              borderRadius: '16px',
-              padding: '32px',
-              maxWidth: '500px',
-              width: '100%',
-              maxHeight: '90vh',
-              overflow: 'auto'
-            }}
-          >
-            <div style={{ marginBottom: '24px' }}>
-              <h3 style={{ fontSize: '22px', fontWeight: '600', marginBottom: '8px' }}>Request Refund</h3>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>
-                Submit a refund request for your payment
-              </p>
+        <div className="modern-modal-overlay" onClick={closeRefundModal}>
+          <div className="modern-modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Request Refund</h2>
+              <button className="close-btn" onClick={closeRefundModal}>×</button>
             </div>
+            
+            <form onSubmit={submitRefundRequest} className="modern-form">
+              <div className="summary-box">
+                <div className="summary-row">
+                  <span>Reference</span>
+                  <span className="font-mono">{selectedPayment.reference}</span>
+                </div>
+                <div className="summary-row">
+                  <span>Amount</span>
+                  <span className="amount">{selectedPayment.currency} {selectedPayment.amount.toFixed(2)}</span>
+                </div>
+              </div>
 
-            <div style={{ 
-              background: 'var(--bg)', 
-              padding: '16px', 
-              borderRadius: '12px', 
-              marginBottom: '24px',
-              border: '1px solid var(--border)'
-            }}>
-              <div className="receipt-row" style={{ marginBottom: '8px' }}>
-                <span className="receipt-label">Reference</span>
-                <span className="receipt-value">{selectedPayment.reference}</span>
-              </div>
-              <div className="receipt-row" style={{ marginBottom: '8px' }}>
-                <span className="receipt-label">Amount</span>
-                <span className="receipt-value" style={{ color: 'var(--accent)', fontWeight: '600' }}>
-                  {selectedPayment.currency} {selectedPayment.amount.toFixed(2)}
-                </span>
-              </div>
-              <div className="receipt-row">
-                <span className="receipt-label">Date</span>
-                <span className="receipt-value">{formatDate(selectedPayment.paidAt || selectedPayment.createdAt)}</span>
-              </div>
-            </div>
-
-            <form onSubmit={submitRefundRequest}>
-              <div style={{ marginBottom: '20px' }}>
-                <label 
-                  htmlFor="refundReason"
-                  style={{ 
-                    display: 'block', 
-                    fontSize: '14px', 
-                    fontWeight: '500', 
-                    marginBottom: '8px',
-                    color: 'var(--text)'
-                  }}
-                >
-                  Reason for Refund *
-                </label>
+              <div className="form-group">
+                <label>Reason for Refund</label>
                 <textarea
-                  id="refundReason"
                   value={refundReason}
                   onChange={(e) => setRefundReason(e.target.value)}
-                  placeholder="Please explain why you are requesting a refund..."
+                  placeholder="Tell us why you're requesting a refund..."
                   required
-                  style={{
-                    width: '100%',
-                    minHeight: '120px',
-                    padding: '12px 16px',
-                    background: 'var(--bg)',
-                    border: '1px solid var(--border)',
-                    borderRadius: '8px',
-                    color: 'var(--text)',
-                    fontSize: '14px',
-                    resize: 'vertical',
-                    fontFamily: 'inherit'
-                  }}
                 />
               </div>
 
               {refundMessage && (
-                <div 
-                  className={`message ${refundMessage.includes('success') ? 'success' : 'error'}`}
-                  style={{
-                    padding: '12px 16px',
-                    borderRadius: '8px',
-                    marginBottom: '20px',
-                    fontSize: '14px',
-                    background: refundMessage.includes('success') ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-                    color: refundMessage.includes('success') ? '#10b981' : '#ef4444',
-                    border: `1px solid ${refundMessage.includes('success') ? '#10b981' : '#ef4444'}`
-                  }}
-                >
+                <div className={`badge-message ${refundMessage.includes('success') ? 'success' : 'error'}`}>
                   {refundMessage}
                 </div>
               )}
 
-              <div style={{ display: 'flex', gap: '12px' }}>
-                <button
-                  type="button"
-                  onClick={closeRefundModal}
-                  style={{
-                    flex: 1,
-                    padding: '12px 20px',
-                    background: 'transparent',
-                    border: '1px solid var(--border)',
-                    borderRadius: '8px',
-                    color: 'var(--text)',
-                    fontSize: '14px',
-                    fontWeight: '500',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.borderColor = 'var(--text-secondary)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.borderColor = 'var(--border)';
-                  }}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={refundLoading}
-                  style={{
-                    flex: 1,
-                    padding: '12px 20px',
-                    background: '#f59e0b',
-                    border: 'none',
-                    borderRadius: '8px',
-                    color: '#000',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    cursor: refundLoading ? 'not-allowed' : 'pointer',
-                    opacity: refundLoading ? 0.7 : 1,
-                    transition: 'all 0.2s ease'
-                  }}
-                >
-                  {refundLoading ? (
-                    <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83">
-                          <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/>
-                        </path>
-                      </svg>
-                      Submitting...
-                    </span>
-                  ) : (
-                    'Submit Request'
-                  )}
+              <div className="modal-actions">
+                <button type="button" className="secondary-btn" onClick={closeRefundModal}>Cancel</button>
+                <button type="submit" className="primary-btn warning" disabled={refundLoading}>
+                  {refundLoading ? <span className="spinner"></span> : 'Submit Request'}
                 </button>
               </div>
             </form>

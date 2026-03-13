@@ -78,10 +78,10 @@ const Features = () => {
           </p>
         </div>
         
-        <div className="feature-grid">
+        <div className="feature-grid-modern">
           {features.map((feature, index) => (
-            <div className="feature-card" key={index}>
-              <div className="feature-icon">
+            <div className="feature-card-modern" key={index}>
+              <div className="feature-icon-glow">
                 {feature.icon}
               </div>
               <h3>{feature.title}</h3>

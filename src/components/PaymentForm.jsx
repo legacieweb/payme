@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-const PaymentForm = ({ compact }) => {
+const PaymentForm = ({ compact, authenticated, initialEmail, initialName, onSuccess }) => {
   const navigate = useNavigate();
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [name, setName] = useState(initialName || '');
+  const [email, setEmail] = useState(initialEmail || '');
   const [amount, setAmount] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
@@ -19,8 +19,8 @@ const PaymentForm = ({ compact }) => {
     setMessage('');
 
     // Store form values in local variables for the callback
-    const paymentName = name;
-    const paymentEmail = email;
+    const paymentName = authenticated ? initialName : name;
+    const paymentEmail = authenticated ? initialEmail : email;
 
     try {
       const handler = window.PaystackPop.setup({
@@ -66,15 +66,19 @@ const PaymentForm = ({ compact }) => {
       });
 
       if (verifyResponse.data.success) {
-        // Redirect to thank you page with payment data
-        navigate('/thankyou', { 
-          state: { 
-            paymentData: {
-              ...verifyResponse.data.data,
-              customer_name: paymentName
+        if (onSuccess) {
+          onSuccess(verifyResponse.data.data);
+        } else {
+          // Redirect to thank you page with payment data
+          navigate('/thankyou', { 
+            state: { 
+              paymentData: {
+                ...verifyResponse.data.data,
+                customer_name: paymentName
+              } 
             } 
-          } 
-        });
+          });
+        }
       } else {
         setMessage('Payment verification failed. Please contact support.');
       }
@@ -87,36 +91,35 @@ const PaymentForm = ({ compact }) => {
 
   if (compact) {
     return (
-      <div className="payment-card compact">
-        <div className="payment-header">
-          <h2>Quick Payment</h2>
-          <p>Send money instantly</p>
-        </div>
-        
+      <div className={`payment-card compact ${authenticated ? 'auth-mode' : ''}`}>
         <form className="payment-form" onSubmit={handlePayment}>
-          <div className="form-group">
-            <label htmlFor="compact-name">Full Name</label>
-            <input 
-              id="compact-name"
-              type="text" 
-              placeholder="John Doe" 
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required 
-            />
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="compact-email">Email Address</label>
-            <input 
-              id="compact-email"
-              type="email" 
-              placeholder="you@example.com" 
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required 
-            />
-          </div>
+          {!authenticated && (
+            <>
+              <div className="form-group">
+                <label htmlFor="compact-name">Full Name</label>
+                <input 
+                  id="compact-name"
+                  type="text" 
+                  placeholder="John Doe" 
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required 
+                />
+              </div>
+              
+              <div className="form-group">
+                <label htmlFor="compact-email">Email Address</label>
+                <input 
+                  id="compact-email"
+                  type="email" 
+                  placeholder="you@example.com" 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required 
+                />
+              </div>
+            </>
+          )}
           
           <div className="amount-group">
             <div className="amount-label">Amount (USD)</div>
@@ -156,19 +159,21 @@ const PaymentForm = ({ compact }) => {
           </button>
           
           {message && (
-            <div className={`message ${message.includes('successful') ? 'success' : 'error'}`}>
+            <div className={`message ${message.includes('successful') || message.includes('Success') ? 'success' : 'error'}`}>
               {message}
             </div>
           )}
         </form>
         
-        <div className="security-badge">
-          <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-          </svg>
-          <span>Secured by Paystack</span>
-        </div>
+        {!authenticated && (
+          <div className="security-badge">
+            <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            <span>Secured by Paystack</span>
+          </div>
+        )}
       </div>
     );
   }
@@ -237,7 +242,7 @@ const PaymentForm = ({ compact }) => {
                   </>
                 ) : (
                   <>
-                    Pay Now
+                    Complete Payment to Paylang
                     <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M5 12h14M12 5l7 7-7 7"/>
                     </svg>
