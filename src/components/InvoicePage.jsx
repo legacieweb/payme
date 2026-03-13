@@ -17,7 +17,7 @@ const InvoicePage = () => {
 
   // Base API URL
   const baseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'https://payme-pn5g.onrender.com'
+    ? 'http://localhost:5000'
     : 'https://payme-pn5g.onrender.com';
 
   const PAYSTACK_PUBLIC_KEY = 'pk_live_7ab8e015626516d7d00210b2e7fe169805c226b8';
@@ -182,116 +182,101 @@ const InvoicePage = () => {
   }
 
   return (
-    <div className="cool-invoice-root">
+    <div className="immersive-invoice-root">
       <div className="aurora-bg">
         <div className="blob blob-1"></div>
         <div className="blob blob-2"></div>
         <div className="blob blob-3"></div>
       </div>
 
-      <div className="cool-invoice-layout">
-        <div className="invoice-visual-side">
-          <div className="visual-content">
-
-            <div className="hero-invoice-details">
-              <div className="tag-premium">
-                {invoice.maxUsage > 1 ? `MULTI-USE INVOICE (${invoice.maxUsage}x)` : 'PREMIUM INVOICE'}
-              </div>
-              <h1 className="hero-description">{invoice.description || 'Service Payment'}</h1>
-              <div className="hero-meta">
-                <span className="meta-item">REF: INV-{id.slice(-6).toUpperCase()}</span>
-                <span className="meta-dot"></span>
-                <span className="meta-item">{new Date(invoice.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-              </div>
-
-              <div className="hero-amount-card">
-                <div className="amount-label">AMOUNT TO SETTLE</div>
-                <div className="amount-value-group">
-                  <span className="currency-symbol">$</span>
-                  <span className="amount-digits">{invoice.amount.toFixed(2)}</span>
-                </div>
-              </div>
+      <div className="immersive-layout">
+        <section className="invoice-info-side">
+          <div className="info-content">
+            <header className="info-header">
+              <div className="ref-badge">INV-{id.slice(-6).toUpperCase()}</div>
+              <div className="date-badge">{new Date(invoice.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+            </header>
+            
+            <div className="amount-display">
+              <div className="currency">$</div>
+              <div className="value">{invoice.amount.toFixed(2)}</div>
             </div>
-
-            <footer className="visual-footer">
-              <div className="trust-badge">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                <span>End-to-End Encrypted Checkout</span>
-              </div>
-            </footer>
-          </div>
-        </div>
-
-        <div className="payment-interaction-side">
-          <div className="interaction-wrapper">
-            <div className="interaction-header">
-              <div className="price-tag-large">
-                <span className="currency">$</span>
-                <span className="amount">{invoice.amount.toFixed(2)}</span>
-              </div>
-              <p>Complete your payment by providing your details below</p>
-            </div>
-
-            <div className="payer-selection-area">
-              {userData ? (
-                <div className="cool-user-card">
-                  <div className="user-orb">{userData.name.charAt(0)}</div>
-                  <div className="user-details">
-                    <div className="user-name">{userData.name}</div>
-                    <div className="user-email">{userData.email}</div>
-                  </div>
-                  <div className="status-indicator">
-                    <div className="pulse-dot"></div>
-                    <span>Active</span>
-                  </div>
-                </div>
-              ) : (
-                <div className="cool-form-grid">
-                  <div className="cool-input-group">
-                    <input 
-                      type="text" 
-                      placeholder=" "
-                      value={guestName}
-                      onChange={(e) => setGuestName(e.target.value)}
-                      required
-                    />
-                    <label>Full Name</label>
-                    <div className="input-focus-border"></div>
-                  </div>
-                  <div className="cool-input-group">
-                    <input 
-                      type="email" 
-                      placeholder=" "
-                      value={guestEmail}
-                      onChange={(e) => setGuestEmail(e.target.value)}
-                      required
-                    />
-                    <label>Email Address</label>
-                    <div className="input-focus-border"></div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <button className="cool-payment-btn" onClick={handlePayment} disabled={paymentLoading}>
-              {paymentLoading ? (
-                <div className="loader-bars">
-                  <span></span><span></span><span></span><span></span>
-                </div>
-              ) : (
-                <>
-                  <span className="btn-text">PAY ${invoice.amount.toFixed(2)} NOW</span>
-                  <div className="btn-glow"></div>
-                  <svg className="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                </>
-              )}
-            </button>
-
-            <div className="extra-info">
-              <p>Powered by <strong>iyonicorp</strong>. Standard transaction terms apply.</p>
+            
+            <h1 className="description">{invoice.description || 'Service Payment'}</h1>
+            
+            <div className="scroll-hint">
+              <span>Ready to Pay</span>
+              <div className="hint-line"></div>
             </div>
           </div>
-        </div>
+        </section>
+
+        <section className="payment-side">
+          <div className="payment-content">
+            <div className="form-container-clean">
+              <h2 className="form-title">Settle Your Invoice</h2>
+              <p className="form-subtitle">Secure payment processing</p>
+
+              <div className="integrated-form">
+                {userData ? (
+                  <div className="active-user-ribbon">
+                    <div className="user-orb">{userData.name.charAt(0)}</div>
+                    <div className="user-text">
+                      <div className="name">{userData.name}</div>
+                      <div className="email">{userData.email}</div>
+                    </div>
+                    <div className="status">
+                      <div className="dot"></div>
+                      <span>Logged In</span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="clean-form-inputs">
+                    <div className="input-field">
+                      <input 
+                        type="text" 
+                        placeholder="Full Name"
+                        value={guestName}
+                        onChange={(e) => setGuestName(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="input-field">
+                      <input 
+                        type="email" 
+                        placeholder="Email Address"
+                        value={guestEmail}
+                        onChange={(e) => setGuestEmail(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <button className="immersive-pay-btn" onClick={handlePayment} disabled={paymentLoading}>
+                  {paymentLoading ? (
+                    <div className="button-loader"></div>
+                  ) : (
+                    <>
+                      <span>PAY ${invoice.amount.toFixed(2)} NOW</span>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              <footer className="form-footer">
+                <div className="trust-row">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                  <span>Bank-Grade Security</span>
+                </div>
+                <div className="copyright">
+                  Powered by <strong>iyonicorp</strong>
+                </div>
+              </footer>
+            </div>
+          </div>
+        </section>
       </div>
       
       {showSettledPopup && (

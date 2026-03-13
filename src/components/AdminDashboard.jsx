@@ -78,7 +78,7 @@ export default function AdminDashboard() {
 
   // Base API URL
   const baseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'https://payme-pn5g.onrender.com'
+    ? 'http://localhost:5000'
     : 'https://payme-pn5g.onrender.com';
 
   const fetchData = async () => {
@@ -891,64 +891,83 @@ export default function AdminDashboard() {
       )}
 
       {showRefundModal && selectedRefund && (
-        <div className="modal-overlay active">
-          <div className="modal">
-            <div className="modal-header">
-              <h3>Process Refund Request</h3>
-              <button className="modal-close" onClick={closeRefundModal}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-              </button>
-            </div>
-            <div className="modal-body">
-              <div className="refund-details">
-                <div className="detail-item">
-                  <span className="detail-label">Customer</span>
-                  <span className="detail-value">{selectedRefund.customerName}</span>
+        <div className="settled-popup-overlay">
+          <div className="modern-modal refund-modal">
+            <div className="modal-sidebar-accent refund"></div>
+            <div className="modal-content-wrapper">
+              <div className="modal-header">
+                <div className="header-title-group">
+                  <div className="header-icon refund">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+                  </div>
+                  <div>
+                    <h3>Process Refund Request</h3>
+                    <p>Review customer's request and take appropriate action.</p>
+                  </div>
                 </div>
-                <div className="detail-item">
-                  <span className="detail-label">Email</span>
-                  <span className="detail-value">{selectedRefund.customerEmail}</span>
+                <button className="modal-close-btn" onClick={closeRefundModal}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              </div>
+
+              <div className="modern-form refund-form">
+                <div className="form-sections-grid">
+                  <div className="refund-summary-box">
+                    <div className="summary-item">
+                      <span className="label">Amount</span>
+                      <span className="value highlight">{formatCurrency(selectedRefund.amount)}</span>
+                    </div>
+                    <div className="summary-item">
+                      <span className="label">Customer</span>
+                      <span className="value">{selectedRefund.customerName}</span>
+                    </div>
+                    <div className="summary-item">
+                      <span className="label">Reference</span>
+                      <span className="value font-mono">{selectedRefund.paymentReference}</span>
+                    </div>
+                    <div className="summary-item reason-item">
+                      <span className="label">Customer's Reason</span>
+                      <p className="reason-text">"{selectedRefund.reason}"</p>
+                    </div>
+                  </div>
+
+                  <div className="refund-actions-inputs">
+                    <div className="modern-input-group">
+                      <label>Admin Resolution Notes</label>
+                      <textarea
+                        value={adminNotes}
+                        onChange={(e) => setAdminNotes(e.target.value)}
+                        placeholder="Explain your decision (sent to customer)..."
+                        rows="6"
+                      />
+                    </div>
+                  </div>
                 </div>
-                <div className="detail-item">
-                  <span className="detail-label">Amount</span>
-                  <span className="detail-value">{formatCurrency(selectedRefund.amount)}</span>
-                </div>
-                <div className="detail-item">
-                  <span className="detail-label">Reference</span>
-                  <span className="detail-value font-mono">{selectedRefund.paymentReference}</span>
-                </div>
-                <div className="detail-item">
-                  <span className="detail-label">Reason</span>
-                  <span className="detail-value">{selectedRefund.reason}</span>
+
+                <div className="modal-action-footer">
+                  <button type="button" className="modern-secondary-btn" onClick={closeRefundModal}>
+                    Discard
+                  </button>
+                  <div className="primary-actions">
+                    <button 
+                      type="button"
+                      className="modern-primary-btn reject"
+                      onClick={() => handleRefundAction('rejected')}
+                      disabled={refundActionLoading}
+                    >
+                      {refundActionLoading ? <div className="btn-loader"></div> : 'Reject Refund'}
+                    </button>
+                    <button 
+                      type="button"
+                      className="modern-primary-btn approve"
+                      onClick={() => handleRefundAction('approved')}
+                      disabled={refundActionLoading}
+                    >
+                      {refundActionLoading ? <div className="btn-loader"></div> : 'Approve Refund'}
+                    </button>
+                  </div>
                 </div>
               </div>
-              <div className="form-group">
-                <label>Admin Notes</label>
-                <textarea
-                  value={adminNotes}
-                  onChange={(e) => setAdminNotes(e.target.value)}
-                  placeholder="Add notes about this refund..."
-                />
-              </div>
-            </div>
-            <div className="modal-footer">
-              <button className="secondary-btn" onClick={closeRefundModal}>
-                Cancel
-              </button>
-              <button 
-                className="danger-btn"
-                onClick={() => handleRefundAction('rejected')}
-                disabled={refundActionLoading}
-              >
-                {refundActionLoading ? <span className="spinner"></span> : 'Reject'}
-              </button>
-              <button 
-                className="primary-btn"
-                onClick={() => handleRefundAction('approved')}
-                disabled={refundActionLoading}
-              >
-                {refundActionLoading ? <span className="spinner"></span> : 'Approve'}
-              </button>
             </div>
           </div>
         </div>

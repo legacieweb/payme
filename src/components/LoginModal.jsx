@@ -14,7 +14,7 @@ const LoginModal = ({ isOpen, onClose, onLogin, onOpenSignup }) => {
   if (!isOpen) return null;
 
   const baseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'https://payme-pn5g.onrender.com'
+    ? 'http://localhost:5000'
     : 'https://payme-pn5g.onrender.com';
 
   const handleLogin = async (e) => {
