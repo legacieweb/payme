@@ -2115,7 +2115,7 @@ body {
   color: var(--text-muted);
 }
 
-.iyonicoro-link {
+.iyonicorp-link {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -2126,13 +2126,13 @@ body {
   transition: all 0.3s ease;
 }
 
-.iyonicoro-text {
+.iyonicorp-text {
   background: linear-gradient(135deg, #fff 0%, var(--accent) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-.iyonicoro-pulse {
+.iyonicorp-pulse {
   width: 6px;
   height: 6px;
   background: var(--accent);
@@ -2140,7 +2140,7 @@ body {
   position: relative;
 }
 
-.iyonicoro-pulse::after {
+.iyonicorp-pulse::after {
   content: '';
   position: absolute;
   top: 50%;
@@ -2150,10 +2150,10 @@ body {
   height: 100%;
   background: var(--accent);
   border-radius: 50%;
-  animation: iyonicoro-ripple 2s infinite;
+  animation: iyonicorp-ripple 2s infinite;
 }
 
-@keyframes iyonicoro-ripple {
+@keyframes iyonicorp-ripple {
   0% {
     width: 6px;
     height: 6px;
@@ -2166,11 +2166,11 @@ body {
   }
 }
 
-.iyonicoro-link:hover {
+.iyonicorp-link:hover {
   transform: scale(1.05);
 }
 
-.iyonicoro-link:hover .iyonicoro-text {
+.iyonicorp-link:hover .iyonicorp-text {
   filter: brightness(1.2);
 }
 
